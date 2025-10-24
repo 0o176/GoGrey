@@ -96,22 +96,39 @@ func toGreyscale(originalImage image.Image) image.Image {
 ```
 
 **Signature**: `func toGreyscale(originalImage image.Image) image.Image`
+
     It takes an `image.Image` interface as input, allowing it to work with any image type supported by the image package.
+    
     It returns an `image.Image`, which will be the greyscale version.
+    
 **Initialization**:
+
     `size := originalImage.Bounds().Size()`: Gets the dimensions of the original image.
+    
     `rect := image.Rect(0, 0, size.X, size.Y)`: Defines a bounding rectangle for the new image.
+    
     `modifiedImg := image.NewRGBA(rect)`: Crucially, a new `image.RGBA` is created. `RGBA` (Red, Green, Blue, Alpha) is a common color model that allows for precise manipulation of individual color channels and transparency. This ensures that the greyscale image can represent the full range of colors needed for proper conversion, even if the input image was in a different color model (like `YCbCr`).
+    
 **Pixel Iteration**: Nested `for` loops iterate through every pixel (`x`, `y`) of the image.
+
 **Color Extraction and Conversion**:
+
     `pixel := originalImage.At(x, y)`: Retrieves the color of the current pixel.
+    
     `originalColor := color.RGBAModel.Convert(pixel).(color.RGBA)`: This is important. Even if the pixel is already an RGBA, using `RGBAModel.Convert` ensures we get a consistent `color.RGBA` struct with its `R`, `G`, `B`, `A` fields directly accessible. The type assertion `.(color.RGBA)` is safe here because `RGBAModel.Convert` is guaranteed to return `color.RGBA` for `color.Color` types.
+    
     `red := float64(originalColor.R)`, etc.: The R, G, B components are converted to `float64` for accurate floating-point arithmetic during the greyscale calculation.
+    
 **Luminosity Method**:
+
     `grey := uint8(math.Round(0.299*red + 0.587*green + 0.114*blue))`: This is the core greyscale conversion logic. The Luminosity Method (often referred to as perceived luminance) is used because it approximates human perception of brightness better than a simple average. Green light contributes the most to perceived brightness, followed by red, and then blue. `math.Round` is used to round the floating-point result to the nearest integer, and `uint8` casts it to an 8-bit unsigned integer, suitable for color components (0-255).
+    
 **Setting the New Pixel Color**:
+
     `modifiedColor := color.RGBA{R: grey, G: grey, B: grey, A: originalColor.A}`: A new RGBA color is created where Red, Green, and Blue are all set to the calculated grey value. The original `Alpha` (transparency) channel is preserved.
+    
     `modifiedImg.Set(x, y, modifiedColor)`: The greyscale pixel is set in the new `modifiedImg`.
+    
 **Return**: The function returns the newly created greyscale `image.Image`.
 
 ### 4. encodeImage Function: Saving the Result
@@ -132,12 +149,19 @@ func encodeImage(w *os.File, img image.Image, format imageFormat) error {
 ```
 
 **Signature**: `func encodeImage(w *os.File, img image.Image, format imageFormat) error`
+
     Takes a `*os.File` (the file to write to), the `image.Image` to encode, and the `imageFormat` as input.
+    
     Returns an `error` if encoding fails.
+    
 **Format-Specific Encoding**: A switch statement handles the different image formats:
+
     `jpeg.Encode`: Encodes a JPEG image. It includes `&jpeg.Options{Quality: 90}` to set the output quality to 90%, which is a good balance between file size and visual fidelity.
+    
     `png.Encode`: Encodes a PNG image. PNG is a lossless format, so no quality options are needed.
+    
     `gif.Encode`: Encodes a GIF image. The `nil` option indicates no special GIF encoding options are provided.
+    
     `default`: Catches any unsupported formats, returning an informative `error`.
 
 ### 5. main Function
