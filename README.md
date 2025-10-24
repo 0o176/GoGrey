@@ -232,11 +232,19 @@ func main() {
 The `main` function serves as the entry point and orchestrator:
 
 **Argument Check**: It verifies that an image filename is provided as a command-line argument. If not, it prints usage instructions and exits.
+
 **Open Input File**: `os.Open` attempts to open the specified input file. `defer inputFile.Close()` ensures the file is closed once the function exits, even if errors occur.
+
 **Decode Image and Detect Format**: `image.Decode(inputFile)` automatically detects the image format (JPEG, PNG, GIF) from the file's header and decodes it into an `image.Image` interface. It also returns a string representation of the detected format.
+
 **Map String to Custom Format**: The detected string format ("jpeg", "png", etc.) is mapped to the custom `imageFormat` type for consistency. If an unsupported format is detected, the program exits.
+
 **Perform Greyscale Conversion**: Calls the `toGreyscale` function to get the greyscale version of the image.
+
 **Construct Output Filename**: It generates an output filename by appending `_greyscale` before the original file extension (e.g., myimage.jpg becomes myimage_greyscale.jpg). This avoids overwriting the original file.
+
 **Create Output File**: `os.Create` creates a new file for the greyscale output. `defer greyscaleOutputFile.Close()` ensures it's closed.
+
 **Encode and Save**: Calls the `encodeImage` function to write the greyscale image to the newly created output file, using the original detected format.
+
 **Error Handling**: Throughout main, `log.Fatalf` is used for critical errors. This immediately prints the error message and exits the program, preventing further execution with corrupted state.
