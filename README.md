@@ -216,7 +216,3 @@ The `main` function serves as the entry point and orchestrator:
 **Create Output File**: `os.Create` creates a new file for the greyscale output. `defer greyscaleOutputFile.Close()` ensures it's closed.
 **Encode and Save**: Calls the `encodeImage` function to write the greyscale image to the newly created output file, using the original detected format.
 **Error Handling**: Throughout main, `log.Fatalf` is used for critical errors. This immediately prints the error message and exits the program, preventing further execution with corrupted state.
-
-## Complete code
-
-GITHUB REPO LINK
